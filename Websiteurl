@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload & Get Image URL</title>
+</head>
+<body>
+
+    <h2>Upload an Image</h2>
+    
+    <input type="file" id="imageInput" accept="image/*">
+    <button onclick="uploadImage()">Upload</button>
+
+    <h3>Preview:</h3>
+    <img id="previewImage" src="" alt="Image Preview" style="max-width: 300px; display: none;">
+    
+    <h3>Image URL:</h3>
+    <input type="text" id="imageUrl" readonly style="width: 100%;">
+    
+    <script>
+        function uploadImage() {
+            let fileInput = document.getElementById("imageInput");
+            let file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select an image!");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("image", file);
+
+            fetch("https://api.imgbb.com/1/upload?key=6a6cb146399e4ad27750cc13320e231d", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let imageUrl = data.data.url;
+                    document.getElementById("previewImage").src = imageUrl;
+                    document.getElementById("previewImage").style.display = "block";
+                    document.getElementById("imageUrl").value = imageUrl;
+                } else {
+                    alert("Upload failed: " + data.error.message);
+                }
+            })
+            .catch(error => {
+                alert("Error uploading image: " + error);
+            });
+        }
+    </script>
+
+</body>
+</html>
